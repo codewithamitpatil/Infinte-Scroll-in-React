@@ -3,34 +3,39 @@
 
 # Custom Hook for InfinteScroll
 ```
+filename : InfiniteScroll.jsx
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const InfiniteScroll = (query, pageNumber) => {
+
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [videos, setVideos] = useState([]);
   const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
+  
     setVideos([]);
+    
   }, [query]);
 
+ 
   useEffect(() => {
-    console.log(videos);
-  }, [videos]);
-  useEffect(() => {
+  
     setIsLoading(true);
     setIsError("");
 
     let cancle;
 
     axios({
+    
       method: "GET",
       url: "http://openlibrary.org/search.json",
       params: { q: query, page: pageNumber },
       cancelToken: new axios.CancelToken((c) => (cancle = c)),
+      
     })
       .then((res) => {
         setVideos((preVid) => {
@@ -46,14 +51,19 @@ const InfiniteScroll = (query, pageNumber) => {
             ]),
           ];
         });
+        
         setHasMore(res.data.docs.length > 0);
         setIsLoading(false);
+        
       })
       .catch((err) => {
+      
         if (axios.isCancel()) return;
+        
       });
 
     return () => cancle();
+    
   }, [query, pageNumber]);
 
   return {
@@ -62,11 +72,10 @@ const InfiniteScroll = (query, pageNumber) => {
     videos,
     isError,
   };
+  
 };
 
 export default InfiniteScroll;
-
-
 
 ```
 
@@ -75,7 +84,7 @@ export default InfiniteScroll;
 ```
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
-// import useInfinite from './useInfinite';
+
 import InfiniteScroll from "./InfiniteScroll";
 
 import "./temp.css";
@@ -95,26 +104,34 @@ export const Temp = () => {
 
   const lastVideoRef = useCallback(
     (node) => {
+    
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver((entries) => {
+      
         if (entries[0].isIntersecting && hasMore) {
+        
           console.log("last node", node);
           setPageNumber((prevNum) => {
             return prevNum + 1;
           });
+          
         }
+        
       });
 
       if (node) observer.current.observe(node);
+      
     },
     [hasMore, isLoading]
   );
 
   const handleQueryChange = (e) => {
+  
     setQuery(e.target.value);
     setPageNumber(1);
+    
   };
 
   return (
